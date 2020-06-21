@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "EDK2",
+            "includePath": [
+                "${env:HVCLASS_PATH}/edk2/MdePkg/Include",
+                "${env:HVCLASS_PATH}/edk2/MdePkg/Include/X64",
+                "${env:HVCLASS_PATH}/edk2/MdePkg/Include/Protocol",
+                "${env:HVCLASS_PATH}/edk2/MdePkg/Include/Library",
+                "${env:HVCLASS_PATH}/edk2/UefiCpuPkg/Include",
+                "${env:HVCLASS_PATH}/edk2/UefiCpuPkg/Include/Protocol",
+                "${env:HVCLASS_PATH}/edk2/UefiCpuPkg/Include/Library",
+                "${workspaceFolder}/**"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}

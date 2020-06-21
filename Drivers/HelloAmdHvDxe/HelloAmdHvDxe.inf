@@ -1,0 +1,48 @@
+[Defines]
+  INF_VERSION                    = 1.27
+  BASE_NAME                      = HelloAmdHvDxe
+  FILE_GUID                      = f2d15a18-3730-476e-924a-895ca7b894f7
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = HelloAmdHvDxeInitialize
+
+[Sources]
+  Setup.c
+  Host.c
+
+[Sources.X64]
+  X64/ExceptionHandlers.asm | MSFT
+  X64/Utilities.asm | MSFT
+  X64/VmRun.asm | MSFT
+
+[Packages]
+  MdePkg/MdePkg.dec
+  UefiCpuPkg/UefiCpuPkg.dec
+  HelloAmdHvPkg/HelloAmdHvPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiLib
+  UefiRuntimeLib
+  LocalApicLib
+  SynchronizationLib
+
+[Protocols]
+  gEfiMpServiceProtocolGuid
+
+[Depex]
+  TRUE
+
+[BuildOptions.common.DXE_RUNTIME_DRIVER]
+  # Detect use of deprecated interfaces if any.
+  MSFT:*_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES
+
+  # Remove DebugLib library instances (ASSERT and such) from the RELEASE binary.
+  # https://github.com/tianocore-docs/edk2-UefiDriverWritersGuide/blob/master/31_testing_and_debugging_uefi_drivers/314_debugging_code_statements/3141_configuring_debuglib_with_edk_ii.md
+  MSFT:RELEASE_*_*_CC_FLAGS = -D MDEPKG_NDEBUG
+
+  # By default, certain meta-data in the PE header is zeroed out to increase
+  # compression ratio. Some of those information can be helpful for a debugger,
+  # for example, to reconstruct stack trace. Leave it for such cases. See also,
+  # https://edk2-docs.gitbook.io/edk-ii-basetools-user-guides/genfw
+  MSFT:*_*_X64_GENFW_FLAGS = --keepexceptiontable --keepzeropending --keepoptionalheader

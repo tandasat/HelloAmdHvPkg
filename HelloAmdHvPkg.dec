@@ -1,0 +1,5 @@
+[Defines]
+  DEC_SPECIFICATION              = 1.27
+  PACKAGE_NAME                   = HelloAmdHvPkg
+  PACKAGE_GUID                   = 518b780d-4e84-4527-a6b2-a79fdf05231c
+  PACKAGE_VERSION                = 1.00
