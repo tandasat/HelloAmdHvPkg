@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "EDK2",
+            "includePath": [
+                "${workspaceFolder}/../MdePkg/Include",
+                "${workspaceFolder}/../MdePkg/Include/X64",
+                "${workspaceFolder}/../MdePkg/Include/Protocol",
+                "${workspaceFolder}/../MdePkg/Include/Library",
+                "${workspaceFolder}/../UefiCpuPkg/Include",
+                "${workspaceFolder}/../UefiCpuPkg/Include/Protocol",
+                "${workspaceFolder}/../UefiCpuPkg/Include/Library",
+                "${workspaceFolder}/**"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}
