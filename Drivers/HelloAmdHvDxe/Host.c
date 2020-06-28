@@ -9,6 +9,8 @@
  */
 #include "HelloAmdHv.h"
 
+#if ENABLE_HOST_MEMORY_LOGGING != 0
+
 //
 // DEBUG that logs messages into a memory buffer.
 //
@@ -34,6 +36,17 @@
     } while (FALSE)
 #else
 #define HOST_ASSERT(Expression)
+#endif
+
+#else
+
+//
+// ENABLE_HOST_MEMORY_LOGGING is zero. Use the standard logging facility.
+//
+#define HOST_DEBUG_INTERNAL(Context, ...)   _DEBUG_PRINT(DEBUG_ERROR, __VA_ARGS__)
+#define HOST_DEBUG(Expression)              HOST_DEBUG_INTERNAL Expression
+#define HOST_ASSERT(Expression)             ASSERT(Expression)
+
 #endif
 
 //
@@ -89,7 +102,7 @@ CpuReset (
 STATIC
 VOID
 LogToMemory (
-    IN OUT HOST_CONTEXT* Context,
+    IN OUT HOST_CONTEXT* Context OPTIONAL,
     IN CONST CHAR8* FormatString,
     ...
     )
@@ -128,6 +141,31 @@ LogToMemory (
                  FormatString,
                  args);
     VA_END(args);
+
+    //
+    // If EFI variables are usable, write back the whole 4KB log buffer to it.
+    //
+    if (g_SetVariablePhys != NULL)
+    {
+        EFI_STATUS status;
+        CHAR16 variableName[16];
+        UINT32 processorNumber;
+
+        processorNumber = (Context == NULL) ? 0 : Context->Cpu->States.Guest.ProcessorNumber;
+        UnicodeSPrint(variableName, sizeof(variableName), L"Log#%d", processorNumber);
+        status = g_SetVariablePhys(variableName,
+                                   &g_LogGuid,
+                                   EFI_VARIABLE_NON_VOLATILE |
+                                   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                                   EFI_VARIABLE_RUNTIME_ACCESS,
+                                   sizeof(*logs),
+                                   logs);
+        if (EFI_ERROR(status))
+        {
+            CpuDeadLoop();
+            CpuReset();
+        }
+    }
 }
 
 /**

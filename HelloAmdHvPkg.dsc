@@ -9,6 +9,7 @@
   SKUID_IDENTIFIER               = DEFAULT
 
 [Components]
+  HelloAmdHvPkg/Applications/LogDump/LogDump.inf
   HelloAmdHvPkg/Drivers/HelloAmdHvDxe/HelloAmdHvDxe.inf
 
 [LibraryClasses]
@@ -21,7 +22,6 @@
   PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
   UefiBootServicesTableLib|MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
   UefiCpuLib|UefiCpuPkg/Library/BaseUefiCpuLib/BaseUefiCpuLib.inf
-  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
   UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
@@ -39,6 +39,12 @@
       DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
     !endif
   !endif
+
+[LibraryClasses.common.DXE_RUNTIME_DRIVER]
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
+
+[LibraryClasses.common.UEFI_APPLICATION]
+  UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
 
 [PcdsFixedAtBuild]
   # Enable EDK2 debug features based on the TARGET configuration.

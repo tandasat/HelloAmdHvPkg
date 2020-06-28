@@ -119,6 +119,19 @@ volatile UINT32 g_RemainingSipiCount;
 EFI_RESET_SYSTEM g_ResetSystemPhys;
 
 //
+// The physical address of the SetVariable runtime service, and the GUID for log.
+//
+EFI_SET_VARIABLE g_SetVariablePhys;
+
+EFI_GUID g_LogGuid =
+{
+    0x212d9932,
+    0x0138,
+    0x4104,
+    { 0xb0, 0x41, 0xfb, 0x74, 0xd0, 0xe8, 0xa6, 0x75, },
+};
+
+//
 // Log buffer to use for assertion.
 //
 MEMORY_LOGS* g_GlobalLogBuffer;
@@ -127,21 +140,6 @@ MEMORY_LOGS* g_GlobalLogBuffer;
 // MP protocol.
 //
 STATIC EFI_MP_SERVICES_PROTOCOL* g_MpServices;
-
-/**
- * @brief Initializes globals used by the host.
- */
-STATIC
-VOID
-InitializeHostDebugFacility (
-    IN ROOT_CONTEXT* Context
-    )
-{
-    ASSERT(g_ResetSystemPhys == NULL);
-    g_ResetSystemPhys = gRT->ResetSystem;
-
-    g_GlobalLogBuffer = &Context->Cpus[0].Logs;
-}
 
 /**
  * @brief Returns the current processor number. 0 for BSP.
@@ -212,6 +210,60 @@ RunOnAllProcessors (
                                          Context,
                                          NULL);
     ASSERT_EFI_ERROR(status);
+}
+
+/**
+ * @brief Initializes globals used by the host.
+ */
+STATIC
+VOID
+InitializeHostDebugFacility (
+    IN ROOT_CONTEXT* Context
+    )
+{
+    UINT32 activeProcessorCount;
+
+    ASSERT(g_ResetSystemPhys == NULL);
+    g_ResetSystemPhys = gRT->ResetSystem;
+
+    ASSERT(g_GlobalLogBuffer == NULL);
+    g_GlobalLogBuffer = &Context->Cpus[0].Logs;
+
+#if ENABLE_EXPERIMENTAL_HOST_EFI_VAR_LOGGING != 0
+    //
+    // Make sure EFI variables are usable to store log buffers for all processors
+    // by writing zero-filled 4KB log buffers. If not, leave g_SetVariablePhys
+    // as NULL to indicate EFI variable are not usable.
+    //
+    ASSERT(g_SetVariablePhys == NULL);
+    g_SetVariablePhys = gRT->SetVariable;
+    activeProcessorCount = GetActiveProcessorCount();
+    for (UINT32 i = 0; i < activeProcessorCount; ++i)
+    {
+        EFI_STATUS status;
+        CHAR16 variableName[16];
+
+        UnicodeSPrint(variableName, sizeof(variableName), L"Log#%d", i);
+        status = gRT->SetVariable(variableName,
+                                  &g_LogGuid,
+                                  EFI_VARIABLE_NON_VOLATILE |
+                                  EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                                  EFI_VARIABLE_RUNTIME_ACCESS,
+                                  sizeof(Context->Cpus[i].Logs),
+                                  &Context->Cpus[i].Logs);
+        if (EFI_ERROR(status))
+        {
+            DEBUG((DEBUG_ERROR,
+                   "SetVariable failed for %s : %r\n",
+                   variableName,
+                   status));
+            g_SetVariablePhys = NULL;
+            break;
+        }
+    }
+#else
+    activeProcessorCount = 0;
+#endif
 }
 
 /**

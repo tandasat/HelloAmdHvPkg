@@ -20,12 +20,19 @@
 #include <Library/UefiLib.h>
 #include <Library/UefiRuntimeLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
+#include <Pi/PiMultiPhase.h>
 #include <Protocol/MpService.h>
 #include <Register/Amd/Cpuid.h>
 #include <Register/Amd/Msr.h>
 #include <Register/Intel/Cpuid.h>
 #include <Register/Intel/LocalApic.h>
 #include "Svm.h"
+
+//
+// Compile time customizations.
+//
+#define ENABLE_HOST_MEMORY_LOGGING                  1
+#define ENABLE_EXPERIMENTAL_HOST_EFI_VAR_LOGGING    0
 
 //
 // MSVC intrinsics.
@@ -388,6 +395,12 @@ extern volatile UINT32 g_RemainingSipiCount;
 // The physical address of the ResetSystem runtime service.
 //
 extern EFI_RESET_SYSTEM g_ResetSystemPhys;
+
+//
+// The physical address of the SetVariable runtime service, and the GUID for log.
+//
+extern EFI_SET_VARIABLE g_SetVariablePhys;
+extern EFI_GUID g_LogGuid;
 
 //
 // Log buffer used when the host context is not specified.

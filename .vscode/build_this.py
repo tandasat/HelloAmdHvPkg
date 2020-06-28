@@ -12,7 +12,7 @@ import shutil
 # User configurations:
 #   PACKAGE: the name of the package to compile
 #   COPY_DEST: the directory to copy the compiled file specified as EFI_NAME
-#   EFI_NAME: the build output to be copied to COPY_DEST
+#   FILES_TO_COPY: the list of build output files to be copied to COPY_DEST
 #   BUILD_TARGET: the build target, such as NOOPT and RELEASE
 #   ARCHITECTURE: the build architecture such as x64
 #   SERIAL_DEBUG: True to debug print on serial output. False for stdout.
@@ -20,7 +20,7 @@ import shutil
 #                 ignored after the runtime unconditionally. This is a EDK2 thing.
 PACKAGE = 'HelloAmdHvPkg'
 COPY_DEST = 'D:\\'
-EFI_NAME = 'HelloAmdHvDxe.efi'
+FILES_TO_COPY = ['HelloAmdHvDxe.efi', 'LogDump.efi']
 BUILD_TARGET = 'NOOPT'
 ARCHITECTURE = 'x64'
 SERIAL_DEBUG = False
@@ -47,8 +47,9 @@ os.chdir(edk_path)
 cmd = f'{edk_setup} && build -t {compiler} -a X64 -b {BUILD_TARGET} -p {PACKAGE}/{PACKAGE}.dsc {additional_parameters}'
 subprocess.call(cmd, shell=True, executable=executable)
 
-# Copy the build output (.efi file) into the destination directory.
-shutil.copy(
-    os.path.join(edk_path, 'Build', PACKAGE, BUILD_TARGET + '_' + compiler, ARCHITECTURE, EFI_NAME),
-    COPY_DEST,
-)
+# Copy the build output files into the destination directory.
+for file in FILES_TO_COPY:
+    shutil.copy(
+        os.path.join(edk_path, 'Build', PACKAGE, BUILD_TARGET + '_' + compiler, ARCHITECTURE, file),
+        COPY_DEST,
+    )

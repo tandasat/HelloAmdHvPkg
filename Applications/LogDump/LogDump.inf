@@ -1,0 +1,20 @@
+[Defines]
+  INF_VERSION                    = 1.27
+  BASE_NAME                      = LogDump
+  FILE_GUID                      = 0832742F-8557-4D15-90F5-64A9D08C2796
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UefiMain
+
+[Sources]
+  LogDump.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+
+[Protocols]
+  gEfiMpServiceProtocolGuid
